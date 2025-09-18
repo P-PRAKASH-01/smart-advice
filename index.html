@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Crop Advisory System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="goods1.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#16a34a"/>
+</head>
+<body class="text-gray-800">
+
+<div id="app-container" class="min-h-screen bg-white">
+  <header class="sticky top-0 z-30 bg-white shadow-md p-4 flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <i class="fas fa-seedling text-3xl text-green-600"></i>
+      <h1 class="text-xl font-bold">Smart Crop Advisory</h1>
+    </div>
+    <div id="auth-container"></div>
+  </header>
+
+  <main id="main-content" class="p-4 md:p-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-20 hidden">
+    <div class="bg-green-50 rounded-xl p-4 md:p-6 shadow-sm border">
+      <h2 id="welcome-message" class="text-xl md:text-2xl font-bold text-green-800">Welcome, Farmer!</h2>
+      <p class="text-gray-600 mt-1">Your personalized crop dashboard is ready.</p>
+    </div>
+    <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border hover:shadow-lg">
+      <h3 class="text-lg font-bold mb-2"><i class="fas fa-cloud-sun text-blue-500 mr-2"></i>Weather Forecast</h3>
+      <div id="weather-forecast" class="space-y-2"></div>
+      <div id="today-tip" class="mt-3 p-3 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium"></div>
+    </div>
+    <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border hover:shadow-lg">
+      <h3 class="text-lg font-bold mb-2"><i class="fas fa-lightbulb text-yellow-500 mr-2"></i>Today's Recommendations</h3>
+      <div id="recommendations-content" class="space-y-2 text-gray-700">
+        <p>Check soil moisture regularly.</p>
+        <p>Look for pest signs after rain.</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border hover:shadow-lg">
+      <h3 class="text-lg font-bold"><i class="fas fa-bug text-red-500 mr-2"></i>Pest/Disease Detection</h3>
+      <button data-modal-target="pest-modal" class="open-modal-btn mt-4 w-full bg-red-500 text-white py-3 rounded-lg font-semibold hover:bg-red-600">Scan Leaf</button>
+    </div>
+    <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border hover:shadow-lg">
+      <h3 class="text-lg font-bold"><i class="fas fa-vial text-yellow-500 mr-2"></i>Fertilizer & Soil Health</h3>
+      <button data-modal-target="soil-modal" class="open-modal-btn mt-4 w-full bg-yellow-500 text-white py-3 rounded-lg font-semibold hover:bg-yellow-600">Start Soil Test</button>
+    </div>
+    <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border hover:shadow-lg">
+      <h3 class="text-lg font-bold mb-2"><i class="fas fa-chart-line text-green-500 mr-2"></i>Market Prices</h3>
+      <div id="market-prices-container" class="space-y-2">
+        <p>Rice – ₹55/kg</p>
+        <p>Groundnut – ₹150/kg</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm border hover:shadow-lg">
+      <h3 class="text-lg font-bold mb-2"><i class="fas fa-comments text-purple-500 mr-2"></i>Feedback</h3>
+      <button data-modal-target="feedback-modal" class="open-modal-btn w-full bg-purple-500 text-white py-3 rounded-lg font-semibold hover:bg-purple-600">Submit Feedback</button>
+    </div>
+  </main>
+
+  <div id="admin-panel" class="hidden p-6 bg-gray-50 min-h-screen">
+    <h2 class="text-2xl font-bold mb-4 text-green-700">Admin Panel</h2>
+    <div class="bg-white p-4 rounded-lg shadow mb-6">
+      <h3 class="font-bold text-lg mb-2">Add Market Price</h3>
+      <form id="market-form" class="flex flex-col md:flex-row gap-2">
+        <input type="text" id="crop-name" placeholder="Crop Name" class="border p-2 rounded flex-1">
+        <input type="number" id="crop-price" placeholder="Price ₹/kg" class="border p-2 rounded flex-1">
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Add</button>
+      </form>
+      <div id="admin-market-list" class="mt-3 space-y-1"></div>
+    </div>
+    <div class="bg-white p-4 rounded-lg shadow">
+      <h3 class="font-bold text-lg mb-2">User Feedback</h3>
+      <div id="admin-feedback" class="space-y-2"></div>
+    </div>
+  </div>
+</div>
+
+<div id="pest-modal" class="modal w-11/12 max-w-md bg-white p-6 rounded-xl shadow-xl">
+  <h3 class="text-lg font-bold mb-4">Pest & Disease Scan</h3>
+
+  <input type="file" id="leaf-upload" accept="image/*" class="hidden">
+  <input type="file" id="leaf-camera" accept="image/*" capture="environment" class="hidden">
+
+  <div class="flex flex-col space-y-3">
+    <label for="leaf-upload" class="w-full text-center cursor-pointer bg-blue-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-600">
+      <i class="fas fa-image mr-2"></i>Upload from Gallery
+    </label>
+    <label for="leaf-camera" class="w-full text-center cursor-pointer bg-gray-700 text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-800">
+      <i class="fas fa-camera mr-2"></i>Take Photo with Camera
+    </label>
+  </div>
+
+  <img id="leaf-preview" class="hidden max-h-48 mx-auto rounded-lg shadow-md mt-4">
+  <button id="analyze-leaf" class="hidden w-full bg-red-600 text-white py-2 rounded-lg mt-3">Analyze Image</button>
+  <div id="pest-result" class="mt-3 hidden p-3 bg-red-50 border rounded-lg"></div>
+</div>
+
+<div id="soil-modal" class="modal w-11/12 max-w-md bg-white p-6 rounded-xl shadow-xl">
+  <h3 class="text-lg font-bold mb-2">Soil Health Test</h3>
+  <form id="soil-test-form" class="space-y-3">
+    <input type="number" id="soil-ph" placeholder="Soil pH (4-9)" class="w-full border p-2 rounded-md" step="0.1">
+    <select id="soil-texture" class="w-full border p-2 rounded-md">
+      <option value="sandy">Sandy</option>
+      <option value="loamy">Loamy</option>
+      <option value="clay">Clay</option>
+    </select>
+    <input type="number" id="soil-organic" placeholder="Organic matter %" class="w-full border p-2 rounded-md" step="0.1">
+    <button type="submit" class="w-full bg-yellow-600 text-white py-2 rounded-lg">Get Recommendation</button>
+  </form>
+  <div id="soil-result" class="mt-3 hidden p-3 bg-green-50 border rounded-lg"></div>
+</div>
+
+<div id="feedback-modal" class="modal w-11/12 max-w-md bg-white p-6 rounded-xl shadow-xl">
+  <h3 class="text-lg font-bold mb-2">Submit Feedback</h3>
+  <form id="feedback-form" class="space-y-3">
+    <textarea id="feedback-text" rows="3" class="w-full border p-2 rounded-md" placeholder="Type here..."></textarea>
+    <button type="submit" class="w-full bg-purple-600 text-white py-2 rounded-lg">Submit</button>
+  </form>
+  <div id="feedback-success" class="hidden mt-3 p-3 bg-green-100 text-green-700 rounded-lg">Thank you for your feedback!</div>
+</div>
+
+<div id="auth-modal" class="modal w-11/12 max-w-sm bg-white rounded-xl shadow-2xl">
+  <div class="p-4 border-b flex">
+    <button data-tab="login" class="tab-btn flex-1 py-2 text-center font-semibold border-b-2 border-green-500 text-green-600">Login</button>
+    <button data-tab="signup" class="tab-btn flex-1 py-2 text-center font-semibold border-b-2 border-transparent text-gray-500">Sign Up</button>
+  </div>
+  <div id="login-form-container" class="tab-content active p-6">
+    <form id="login-form" class="space-y-4">
+      <input type="tel" id="login-mobile" placeholder="10-digit number" class="w-full border p-2 rounded-md">
+      <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg">Login</button>
+      <p id="login-error" class="text-red-500 text-sm hidden"></p>
+    </form>
+  </div>
+  <div id="signup-form-container" class="tab-content hidden p-6">
+    <form id="signup-form" class="space-y-4">
+      <input type="text" id="signup-name" placeholder="Your Name" class="w-full border p-2 rounded-md">
+      <input type="tel" id="signup-mobile" placeholder="10-digit number" class="w-full border p-2 rounded-md">
+      <input type="text" id="signup-otp" placeholder="Enter OTP (123456)" class="w-full border p-2 rounded-md">
+      <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg">Create Account</button>
+      <p id="signup-error" class="text-red-500 text-sm hidden"></p>
+    </form>
+  </div>
+</div>
+
+<div id="modal-backdrop" class="modal-backdrop"></div>
+
+<script src="goods2.js"></script>
+<script>
+  // Register the service worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(registration => {
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        })
+        .catch(err => {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+    });
+  }
+</script>
+</body>
+</html>

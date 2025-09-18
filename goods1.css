@@ -1,0 +1,127 @@
+/* General body styling */
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f7f8fc;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+/* NEW: Prevents page scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* UPDATED: Modal backdrop (dark overlay) */
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;   /* Use 100% of the viewport width */
+  height: 100vh;  /* Use 100% of the viewport height */
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+  transition: opacity 0.3s ease;
+}
+
+/* Modal box (Desktop styles) */
+.modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: translate(-50%, -50%);
+  z-index: 50;
+  background: white;
+  animation: scaleIn 0.25s ease;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+/* Modal animation */
+@keyframes scaleIn {
+  from {
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Scroll styling inside modals */
+.modal::-webkit-scrollbar {
+  width: 6px;
+}
+.modal::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+/* Buttons hover/focus smoothness */
+button {
+  transition: all 0.2s ease;
+}
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4); /* green glow */
+}
+
+/* Form inputs */
+input, textarea, select {
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: #16a34a; /* Tailwind green-600 */
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.3);
+}
+
+/* Card hover */
+/* goods.css */
+
+/* Card hover */
+#main-content > div:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+/* Add this to goods.css if needed, but Tailwind's "hidden" class should be enough */
+#leaf-upload, #leaf-camera {
+  display: none;
+}
+
+/* Responsive tweaks */
+@media (max-width: 640px) {
+  header h1 {
+    font-size: 1rem;
+  }
+  #main-content {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* UPDATED: Mobile modal styles for keyboard compatibility */
+  .modal {
+    width: 90%;
+    left: 5%;
+    top: 20px;
+    transform: none; /* Disable transform to prevent layout shifts */
+    max-height: 85vh; /* Adjust max-height for smaller screens */
+  }
+}
+
+/* Success / error messages */
+#feedback-success {
+  font-weight: 600;
+  border-left: 4px solid #16a34a;
+  padding-left: 10px;
+}
+
+#error-message, .text-red-500 {
+  font-size: 0.875rem;
+}

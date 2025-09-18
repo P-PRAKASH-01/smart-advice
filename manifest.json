@@ -1,0 +1,22 @@
+{
+  "name": "Smart Crop Advisory System",
+  "short_name": "Crop Advisory",
+  "description": "An advisory system for farmers providing weather, market, and pest information.",
+  "start_url": "goods.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "icon1.jpeg",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon2.jpeg",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
