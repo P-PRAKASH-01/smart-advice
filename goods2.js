@@ -1,4 +1,39 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // NEW: Text-to-Speech (TTS) functionality
+  let voices = [];
+  function populateVoiceList() {
+    voices = speechSynthesis.getVoices();
+  }
+  populateVoiceList();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = populateVoiceList;
+  }
+
+  function speakText(text) {
+    speechSynthesis.cancel(); // Stop any previous speech
+    const utterance = new SpeechSynthesisUtterance(text);
+    const selectedLang = localStorage.getItem('language') || 'en';
+    
+    const langMap = {
+      en: 'en-US',
+      hi: 'hi-IN',
+      ta: 'ta-IN'
+    };
+    const targetLang = langMap[selectedLang];
+    utterance.lang = targetLang;
+
+    // Find a voice that matches the selected language
+    const voice = voices.find(v => v.lang === targetLang);
+    if (voice) {
+      utterance.voice = voice;
+    } else {
+      console.warn(`Voice for ${targetLang} not found, using browser default.`);
+    }
+    
+    speechSynthesis.speak(utterance);
+  }
+  // END of TTS functionality
+
   const translations = {
     en: {
       pageTitle: "Smart Crop Advisory System",
@@ -51,9 +86,16 @@ document.addEventListener("DOMContentLoaded", () => {
       namePlaceholder: "Your Name",
       otpPlaceholder: "Enter OTP (123456)",
       createAccountBtn: "Create Account",
-      noFeedback: "No feedback yet"
+      noFeedback: "No feedback yet",
+      // NEW: Keys for spoken results
+      pestResultText: "<b>Result:</b> Leaf Spot detected.<br><b>Advice:</b> Apply copper fungicide weekly.",
+      pestResultSpeech: "Result: Leaf Spot detected. Advice: Apply copper fungicide weekly.",
+      soilGood: "Soil looks good.",
+      soilAcidic: "Too acidic, add lime.",
+      soilAlkaline: "Too alkaline, add gypsum.",
+      soilLowOrganic: " Low organic matter: add compost.",
+      soilSandy: " Sandy soil: add nitrogen fertilizer."
     },
-    // NEW: Hindi translations
     hi: {
       pageTitle: "स्मार्ट फसल सलाहकार प्रणाली",
       appTitle: "स्मार्ट फसल सलाहकार",
@@ -105,7 +147,15 @@ document.addEventListener("DOMContentLoaded", () => {
       namePlaceholder: "आपका नाम",
       otpPlaceholder: "ओटीपी दर्ज करें (123456)",
       createAccountBtn: "खाता बनाएं",
-      noFeedback: "अभी तक कोई प्रतिक्रिया नहीं है"
+      noFeedback: "अभी तक कोई प्रतिक्रिया नहीं है",
+      // NEW: Keys for spoken results
+      pestResultText: "<b>परिणाम:</b> पत्ती धब्बा पाया गया।<br><b>सलाह:</b> साप्ताहिक रूप से कॉपर कवकनाशी का प्रयोग करें।",
+      pestResultSpeech: "परिणाम: पत्ती धब्बा पाया गया। सलाह: साप्ताहिक रूप से कॉपर कवकनाशी का प्रयोग करें।",
+      soilGood: "मिट्टी अच्छी दिखती है।",
+      soilAcidic: "बहुत अम्लीय, चूना डालें।",
+      soilAlkaline: "बहुत क्षारीय, जिप्सम डालें।",
+      soilLowOrganic: " कम कार्बनिक पदार्थ: खाद डालें।",
+      soilSandy: " रेतीली मिट्टी: नाइट्रोजन उर्वरक डालें।"
     },
     ta: {
       pageTitle: "ஸ்மார்ட் பயிர் ஆலோசனை அமைப்பு",
@@ -158,7 +208,15 @@ document.addEventListener("DOMContentLoaded", () => {
       namePlaceholder: "உங்கள் பெயர்",
       otpPlaceholder: "OTP ஐ உள்ளிடவும் (123456)",
       createAccountBtn: "கணக்கை உருவாக்கு",
-      noFeedback: "இன்னும் பின்னூட்டம் இல்லை"
+      noFeedback: "இன்னும் பின்னூட்டம் இல்லை",
+      // NEW: Keys for spoken results
+      pestResultText: "<b>முடிவு:</b> இலை புள்ளி கண்டறியப்பட்டது.<br><b>அறிவுரை:</b> வாரந்தோறும் காப்பர் பூஞ்சைக் கொல்லியைப் பயன்படுத்துங்கள்.",
+      pestResultSpeech: "முடிவு: இலை புள்ளி கண்டறியப்பட்டது. அறிவுரை: வாரந்தோறும் காப்பர் பூஞ்சைக் கொல்லியைப் பயன்படுத்துங்கள்.",
+      soilGood: "மண் நன்றாக உள்ளது.",
+      soilAcidic: "மிகவும் அமிலமானது, சுண்ணாம்பு சேர்க்கவும்.",
+      soilAlkaline: "மிகவும் காரமானது, ஜிப்சம் சேர்க்கவும்.",
+      soilLowOrganic: " குறைந்த கரிமப் பொருள்: உரம் சேர்க்கவும்.",
+      soilSandy: " மணல் மண்: நைட்ரஜன் உரம் சேர்க்கவும்."
     }
   };
 
@@ -320,13 +378,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const ph = parseFloat(document.getElementById("soil-ph").value);
     const texture = document.getElementById("soil-texture").value;
     const organic = parseFloat(document.getElementById("soil-organic").value);
-    let msg = "Soil looks good.";
-    if (ph < 5.5) msg = "Too acidic, add lime.";
-    else if (ph > 8) msg = "Too alkaline, add gypsum.";
-    if (organic < 1) msg += " Low organic matter: add compost.";
-    if (texture === "sandy") msg += " Sandy soil: add nitrogen fertilizer.";
+    
+    const lang = localStorage.getItem('language') || 'en';
+    const T = translations[lang]; // Get current language translations
+    
+    let msg = T.soilGood;
+    if (ph < 5.5) msg = T.soilAcidic;
+    else if (ph > 8) msg = T.soilAlkaline;
+    if (organic < 1) msg += T.soilLowOrganic;
+    if (texture === "sandy") msg += T.soilSandy;
+    
     document.getElementById("soil-result").textContent = msg;
     document.getElementById("soil-result").classList.remove("hidden");
+
+    // NEW: Speak the result
+    speakText(msg);
   });
 
   function handleLeafInput(file) {
@@ -341,10 +407,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   document.getElementById("leaf-upload").addEventListener("change", e => handleLeafInput(e.target.files[0]));
   document.getElementById("leaf-camera").addEventListener("change", e => handleLeafInput(e.target.files[0]));
+  
   document.getElementById("analyze-leaf").addEventListener("click", () => {
-    document.getElementById("pest-result").innerHTML =
-      "<b>Result:</b> Leaf Spot detected.<br><b>Advice:</b> Apply copper fungicide weekly.";
+    const lang = localStorage.getItem('language') || 'en';
+    const resultText = translations[lang].pestResultText;
+    const speechText = translations[lang].pestResultSpeech;
+    
+    document.getElementById("pest-result").innerHTML = resultText;
     document.getElementById("pest-result").classList.remove("hidden");
+
+    // NEW: Speak the result
+    speakText(speechText);
   });
 
   document.getElementById("feedback-form").addEventListener("submit", e => {
