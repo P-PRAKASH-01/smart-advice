@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // NEW: Translations object
   const translations = {
     en: {
       pageTitle: "Smart Crop Advisory System",
@@ -52,60 +53,6 @@ document.addEventListener("DOMContentLoaded", () => {
       otpPlaceholder: "Enter OTP (123456)",
       createAccountBtn: "Create Account",
       noFeedback: "No feedback yet"
-    },
-    // NEW: Hindi translations
-    hi: {
-      pageTitle: "स्मार्ट फसल सलाहकार प्रणाली",
-      appTitle: "स्मार्ट फसल सलाहकार",
-      loginSignup: "लॉगिन / साइन अप",
-      logout: "लॉगआउट",
-      hello: "नमस्ते",
-      welcomeTitle: "किसान, आपका स्वागत है!",
-      welcomeSubtitle: "आपका व्यक्तिगत फसल डैशबोर्ड तैयार है।",
-      weatherTitle: "मौसम पूर्वानुमान",
-      weatherToday: "आज",
-      weatherTomorrow: "कल",
-      weatherDayAfter: "परसों",
-      humidTip: "अधिक आर्द्रता से कीटों का खतरा बढ़ सकता है।",
-      sunnyTip: "सिंचाई सुनिश्चित करें और फसलों की निगरानी करें।",
-      recommendationsTitle: "आज की सिफारिशें",
-      rec1: "नियमित रूप से मिट्टी की नमी की जाँच करें।",
-      rec2: "बारिश के बाद कीटों के लक्षणों पर ध्यान दें।",
-      pestTitle: "कीट/रोग का पता लगाना",
-      scanLeafBtn: "पत्ती स्कैन करें",
-      soilTitle: "उर्वरक और मिट्टी का स्वास्थ्य",
-      startSoilTestBtn: "मिट्टी परीक्षण शुरू करें",
-      marketTitle: "बाजार मूल्य",
-      feedbackTitle: "प्रतिक्रिया",
-      submitFeedbackBtn: "प्रतिक्रिया भेजें",
-      adminPanel: "एडमिन पैनल",
-      addMarketPrice: "बाजार मूल्य जोड़ें",
-      cropNamePlaceholder: "फसल का नाम",
-      cropPricePlaceholder: "मूल्य ₹/किग्रा",
-      addBtn: "जोड़ें",
-      userFeedback: "उपयोगकर्ता प्रतिक्रिया",
-      pestModalTitle: "कीट और रोग स्कैन",
-      uploadFromGallery: "गैलरी से अपलोड करें",
-      takePhoto: "कैमरे से फोटो लें",
-      analyzeImageBtn: "छवि का विश्लेषण करें",
-      soilModalTitle: "मृदा स्वास्थ्य परीक्षण",
-      soilPhPlaceholder: "मिट्टी का पीएच (4-9)",
-      sandy: "रेतीली",
-      loamy: "दोमट",
-      clay: "चिकनी मिट्टी",
-      organicMatterPlaceholder: "जैविक पदार्थ %",
-      getRecommendationBtn: "सिफारिश प्राप्त करें",
-      feedbackModalTitle: "प्रतिक्रिया भेजें",
-      typeHerePlaceholder: "यहां टाइप करें...",
-      submitBtn: "भेजें",
-      feedbackSuccess: "आपकी प्रतिक्रिया के लिए धन्यवाद!",
-      login: "लॉगिन",
-      signUp: "साइन अप",
-      mobilePlaceholder: "10-अंकीय नंबर",
-      namePlaceholder: "आपका नाम",
-      otpPlaceholder: "ओटीपी दर्ज करें (123456)",
-      createAccountBtn: "खाता बनाएं",
-      noFeedback: "अभी तक कोई प्रतिक्रिया नहीं है"
     },
     ta: {
       pageTitle: "ஸ்மார்ட் பயிர் ஆலோசனை அமைப்பு",
@@ -175,6 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
     { crop: "Groundnut", price: 150 }
   ];
 
+  // NEW: Function to set the language
   function setLanguage(lang) {
     document.querySelectorAll('[data-key]').forEach(element => {
       const key = element.dataset.key;
@@ -191,12 +139,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
     localStorage.setItem('language', lang);
+    // Refresh dynamic content with the new language
     if(currentUser && currentUser.role !== 'admin') {
       updateWeather();
       updateMarketUI();
     }
   }
 
+  // MODIFIED: updateAuthUI to handle translations
   function updateAuthUI() {
     const lang = localStorage.getItem('language') || 'en';
     if (currentUser) {
@@ -206,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <button id="logout-btn" class="bg-red-500 text-white px-3 py-1 rounded-lg text-sm">${translations[lang].logout}</button>
         </div>
       `;
-      languageSelector.classList.add('hidden');
+      languageSelector.classList.add('hidden'); // Hide selector when logged in
       document.getElementById("logout-btn").addEventListener("click", () => {
         currentUser = null;
         updateAuthUI();
@@ -225,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
           class="open-modal-btn bg-green-500 text-white px-4 py-2 rounded-lg" data-key="loginSignup">
           ${translations[lang].loginSignup}
         </button>`;
-      languageSelector.classList.remove('hidden');
+      languageSelector.classList.remove('hidden'); // Show selector when logged out
       mainContent.classList.add("hidden");
       adminPanel.classList.add("hidden");
       document.querySelector(".open-modal-btn[data-modal-target='auth-modal']")
@@ -233,6 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // MODIFIED: updateWeather to handle translations
   function updateWeather() {
     const lang = localStorage.getItem('language') || 'en';
     const weatherData = [
@@ -259,6 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateAdminMarket();
   }
 
+  // MODIFIED: updateAdminFeedback to handle translations
   function updateAdminFeedback() {
     const lang = localStorage.getItem('language') || 'en';
     const container = document.getElementById("admin-feedback");
@@ -399,12 +351,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // NEW: Event listener for language selector
   languageSelector.addEventListener('change', (event) => {
     setLanguage(event.target.value);
   });
 
+  // Init: Check for saved language and apply it
   const savedLang = localStorage.getItem('language') || 'en';
   languageSelector.value = savedLang;
   setLanguage(savedLang);
-  updateAuthUI();
+  updateAuthUI(); // Initial UI setup
 });
