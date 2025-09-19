@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const translations = {
     en: {
-      selectLanguage: "Select Language",
       pageTitle: "Smart Crop Advisory System",
       appTitle: "Smart Crop Advisory",
       loginSignup: "Login / Sign Up",
@@ -54,8 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
       createAccountBtn: "Create Account",
       noFeedback: "No feedback yet"
     },
+    // NEW: Hindi translations
     hi: {
-      selectLanguage: "भाषा चुनें",
       pageTitle: "स्मार्ट फसल सलाहकार प्रणाली",
       appTitle: "स्मार्ट फसल सलाहकार",
       loginSignup: "लॉगिन / साइन अप",
@@ -109,7 +108,6 @@ document.addEventListener("DOMContentLoaded", () => {
       noFeedback: "अभी तक कोई प्रतिक्रिया नहीं है"
     },
     ta: {
-      selectLanguage: "மொழியை தேர்ந்தெடு",
       pageTitle: "ஸ்மார்ட் பயிர் ஆலோசனை அமைப்பு",
       appTitle: "ஸ்மார்ட் பயிர் ஆலோசனை",
       loginSignup: "உள்நுழை / பதிவுசெய்",
@@ -164,22 +162,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // --- Main App Elements ---
-  const appContainer = document.getElementById("app-container");
   const authContainer = document.getElementById("auth-container");
   const mainContent = document.getElementById("main-content");
   const adminPanel = document.getElementById("admin-panel");
   const modalBackdrop = document.getElementById("modal-backdrop");
-  
-  // --- Language Overlay Elements ---
-  const languageOverlay = document.getElementById("language-overlay");
-  const languageButtons = document.querySelectorAll(".language-btn");
-  const nextButton = document.getElementById("next-btn");
-  
-  let selectedLang = null;
+  const languageSelector = document.getElementById("language-selector");
+
   let currentUser = null;
   let feedbackData = [];
-  let marketData = [ { crop: "Rice", price: 55 }, { crop: "Groundnut", price: 150 }];
+  let marketData = [
+    { crop: "Rice", price: 55 },
+    { crop: "Groundnut", price: 150 }
+  ];
 
   function setLanguage(lang) {
     document.querySelectorAll('[data-key]').forEach(element => {
@@ -196,41 +190,13 @@ document.addEventListener("DOMContentLoaded", () => {
         element.placeholder = translation;
       }
     });
-    if (currentUser && currentUser.role !== 'admin') {
+    localStorage.setItem('language', lang);
+    if(currentUser && currentUser.role !== 'admin') {
       updateWeather();
       updateMarketUI();
     }
   }
 
-  function initializeMainApp(lang) {
-    localStorage.setItem('language', lang);
-    setLanguage(lang);
-    languageOverlay.style.opacity = '0';
-    setTimeout(() => {
-      languageOverlay.classList.add('hidden');
-      appContainer.classList.remove('hidden');
-    }, 500); // Wait for fade-out animation
-    updateAuthUI();
-  }
-
-  // --- NEW Language Overlay Logic ---
-  languageButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      languageButtons.forEach(btn => btn.classList.remove('active'));
-      button.classList.add('active');
-      selectedLang = button.dataset.lang;
-      nextButton.disabled = false;
-    });
-  });
-
-  nextButton.addEventListener('click', () => {
-    if (selectedLang) {
-      initializeMainApp(selectedLang);
-    }
-  });
-
-
-  // --- App Logic (functions remain mostly the same) ---
   function updateAuthUI() {
     const lang = localStorage.getItem('language') || 'en';
     if (currentUser) {
@@ -240,6 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <button id="logout-btn" class="bg-red-500 text-white px-3 py-1 rounded-lg text-sm">${translations[lang].logout}</button>
         </div>
       `;
+      languageSelector.classList.add('hidden');
       document.getElementById("logout-btn").addEventListener("click", () => {
         currentUser = null;
         updateAuthUI();
@@ -258,13 +225,14 @@ document.addEventListener("DOMContentLoaded", () => {
           class="open-modal-btn bg-green-500 text-white px-4 py-2 rounded-lg" data-key="loginSignup">
           ${translations[lang].loginSignup}
         </button>`;
+      languageSelector.classList.remove('hidden');
       mainContent.classList.add("hidden");
       adminPanel.classList.add("hidden");
       document.querySelector(".open-modal-btn[data-modal-target='auth-modal']")
         .addEventListener("click", () => openModal(document.getElementById("auth-modal")));
     }
   }
-  
+
   function updateWeather() {
     const lang = localStorage.getItem('language') || 'en';
     const weatherData = [
@@ -290,7 +258,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateAdminFeedback();
     updateAdminMarket();
   }
-  
+
   function updateAdminFeedback() {
     const lang = localStorage.getItem('language') || 'en';
     const container = document.getElementById("admin-feedback");
@@ -431,11 +399,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // --- Initial Load Logic ---
-  const savedLang = localStorage.getItem('language');
-  if (savedLang) {
-    initializeMainApp(savedLang);
-  } else {
-    languageOverlay.classList.remove('hidden');
-  }
+  languageSelector.addEventListener('change', (event) => {
+    setLanguage(event.target.value);
+  });
+
+  const savedLang = localStorage.getItem('language') || 'en';
+  languageSelector.value = savedLang;
+  setLanguage(savedLang);
+  updateAuthUI();
 });
