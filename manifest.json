@@ -2,7 +2,7 @@
   "name": "Smart Crop Advisory System",
   "short_name": "Crop Advisory",
   "description": "An advisory system for farmers providing weather, market, and pest information.",
-  "start_url": "goods.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#16a34a",
